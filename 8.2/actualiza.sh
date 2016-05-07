@@ -38,11 +38,16 @@ aptitude full-upgrade -y
 # Enable maintenance mode
 sudo -u www-data php $OCPATH/occ maintenance:mode --on
 
+# Stop Apache # OJO - Añadido todo el apartado
+echo "Stopping Apache server"
+service apache2 stop
+
 # Backup data
-rsync -Aaxv $DATA $HTML
-rsync -Aax $OCPATH/config $HTML
-rsync -Aax $OCPATH/themes $HTML
-rsync -Aax $OCPATH/apps $HTML
+touch $SCRIPTS/DatosCopiados.log # OJO - añadido
+rsync -Aaxv $DATA $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado 
+rsync -Aax $OCPATH/config $HTML  >> $SCRIPTS/DatosCopiados.log # OJO - modificado
+rsync -Aax $OCPATH/themes $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
+rsync -Aax $OCPATH/apps $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
 if [[ $? > 0 ]]
 then
     echo "Backup was not OK. Please check $HTML and see if the folders are backed up properly"
@@ -65,21 +70,21 @@ fi
 if [ -d $OCPATH/config/ ]; then
         echo "config/ exists" 
 else
-        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ and config/ folders exist."
+        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if config/ folder exist."
    exit 1
 fi
 
 if [ -d $OCPATH/themes/ ]; then
         echo "themes/ exists" 
 else
-        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ and config/ folders exist."
+        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if themes/ folder exist."
    exit 1
 fi
 
 if [ -d $OCPATH/apps/ ]; then
         echo "apps/ exists" 
 else
-        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ and config/ folders exist."
+        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if apps/ folder exist."
    exit 1
 fi
 
@@ -88,15 +93,19 @@ if [ -d $DATA/ ]; then
         rm -rf $OCPATH
         tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE # OJO - modificado en ruta de destino y opciones tar
         rm $HTML/owncloud-$OCVERSION.tar.bz2
-        cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes
-        cp -Rv $HTML/data $DATA && rm -rf $HTML/data
-        cp -R $HTML/config $OCPATH/ && rm -rf $HTML/config
-        cp -R $HTML/apps $OCPATH/ && rm -rf $HTML/apps
+        touch $SCRIPTS/DatosRestaurados.log # OJO - añadido
+        cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes >> $SCRIPTS/DatosRestaurados.log # OJO - modificado 
+        cp -Rv $HTML/data $DATA && rm -rf $HTML/data >> $SCRIPTS/DatosRestaurados.log # OJO - modificado 
+        cp -R $HTML/config $OCPATH/ && rm -rf $HTML/config >> $SCRIPTS/DatosRestaurados.log # OJO - modificado  
+        # cp -R $HTML/apps $OCPATH/ && rm -rf $HTML/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
         bash $SECURE
+        # Start Apache # OJO - Añadido todo el apartado
+        echo "Starting Apache server"
+        service apache2 start
         sudo -u www-data php $OCPATH/occ maintenance:mode --off
         sudo -u www-data php $OCPATH/occ upgrade
 else
-        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ and config/ folders exist."
+        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ folder exist."
    exit 1
 fi
 
@@ -107,14 +116,14 @@ fi
 sudo -u www-data php $OCPATH/occ app:enable external
 
 # Disable maintenance mode
-sudo -u www-data php $OCPATH/occ maintenance:mode --off
+# sudo -u www-data php $OCPATH/occ maintenance:mode --off #OJO - modificado por aparentemente redundante
 
 # Increase max filesize (expects that changes are made in /etc/php5/apache2/php.ini)
 # Here is a guide: https://www.techandme.se/increase-max-file-size/
 VALUE="# php_value upload_max_filesize 1000M"
 if grep -Fxq "$VALUE" $OCPATH/.htaccess
 then
-        echo "Value correct"
+        echo "Upload value correct"
 else
         sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 1000M/g' $OCPATH/.htaccess
         sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 1000M/g' $OCPATH/.htaccess
@@ -142,7 +151,7 @@ sudo apt-get autoclean
 sudo update-grub
 
 # Write to log
-touch /var/log/cronjobs_success.log
+touch /$SCRIPTS/cronjobs_success.log #OJO - modificada ruta
 echo "OWNCLOUD UPDATE success-$(date +"%Y%m%d")" >> /var/log/cronjobs_success.log
 echo
 echo ownCloud version:
