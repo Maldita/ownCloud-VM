@@ -5,13 +5,18 @@
 # Tested on Ubuntu Server 14.04.
 #
 SCRIPTS=/var/scripts
-HTML=/var/www/html
+HTML=/var/backup # OJO - modificado
 OCPATH=/var/www/owncloud
-DATA=/var/ocdata
+DATA=/var/www/owncloud/data # OJO - modificado
 SECURE="$SCRIPTS/setup_secure_permissions_owncloud.sh"
 OCVERSION=8.2.4
 STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/master/static"
 THEME_NAME=""
+
+# Provisional
+mkdir /var/backup
+chown -R www-data:www-data /var/backup
+chmod -R 777 /var/backup
 
 # Must be root
 [[ $(id -u) -eq 0 ]] || { echo "Must be root to run script, in Ubuntu type: sudo -i"; exit 1; }
@@ -80,7 +85,7 @@ fi
 if [ -d $DATA/ ]; then
         echo "data/ exists" && sleep 2
         rm -rf $OCPATH
-        tar -xjf $HTML/owncloud-$OCVERSION.tar.bz2 -C $HTML 
+        tar -xjf $HTML/owncloud-$OCVERSION.tar.bz2 -C $OCDATA # OJO - modificado 
         rm $HTML/owncloud-$OCVERSION.tar.bz2
         cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes
         cp -Rv $HTML/data $DATA && rm -rf $HTML/data
@@ -95,9 +100,9 @@ else
 fi
 
 # Enable Apps
-sudo -u www-data php $OCPATH/occ app:enable calendar
-sudo -u www-data php $OCPATH/occ app:enable contacts
-sudo -u www-data php $OCPATH/occ app:enable documents
+#sudo -u www-data php $OCPATH/occ app:enable calendar
+#sudo -u www-data php $OCPATH/occ app:enable contacts
+#sudo -u www-data php $OCPATH/occ app:enable documents
 sudo -u www-data php $OCPATH/occ app:enable external
 
 # Disable maintenance mode
