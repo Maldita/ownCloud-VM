@@ -85,7 +85,7 @@ fi
 if [ -d $DATA/ ]; then
         echo "data/ exists" && sleep 2
         rm -rf $OCPATH
-        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $OCDATA # OJO - modificado en ruta de destino y opciones tar
+        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $OCPATH # OJO - modificado en ruta de destino y opciones tar
         rm $HTML/owncloud-$OCVERSION.tar.bz2
         cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes
         cp -Rv $HTML/data $DATA && rm -rf $HTML/data
