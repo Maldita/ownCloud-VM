@@ -8,6 +8,7 @@ SCRIPTS=/var/scripts
 HTML=/var/backup # OJO - modificado
 OCPATH=/var/www/owncloud
 DATA=/var/www/owncloud/data # OJO - modificado
+BASE=/var/www # OJO - añadido
 SECURE="$SCRIPTS/setup_secure_permissions_owncloud.sh"
 OCVERSION=8.2.4
 STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/master/static"
@@ -85,7 +86,7 @@ fi
 if [ -d $DATA/ ]; then
         echo "data/ exists" && sleep 2
         rm -rf $OCPATH
-        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $OCPATH # OJO - modificado en ruta de destino y opciones tar
+        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE # OJO - modificado en ruta de destino y opciones tar
         rm $HTML/owncloud-$OCVERSION.tar.bz2
         cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes
         cp -Rv $HTML/data $DATA && rm -rf $HTML/data
