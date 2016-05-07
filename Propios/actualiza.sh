@@ -9,8 +9,8 @@ HTML=/var/www/html
 OCPATH=/var/www/owncloud
 DATA=/var/ocdata
 SECURE="$SCRIPTS/setup_secure_permissions_owncloud.sh"
-OCVERSION=9.0.1
-STATIC="https://raw.githubusercontent.com/enoch85/ownCloud-VM/master/static"
+OCVERSION=8.2.4
+STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/master/static"
 THEME_NAME=""
 
 # Must be root
@@ -46,7 +46,7 @@ else
     echo "Backup OK!"
     echo -e "\e[0m"
 fi
-wget https://download.owncloud.org/community/testing/owncloud-$OCVERSION.tar.bz2 -P $HTML
+wget https://download.owncloud.org/community/owncloud-$OCVERSION.tar.bz2 -P $HTML
 
 if [ -f $HTML/owncloud-$OCVERSION.tar.bz2 ];
 then
@@ -105,14 +105,14 @@ sudo -u www-data php $OCPATH/occ maintenance:mode --off
 
 # Increase max filesize (expects that changes are made in /etc/php5/apache2/php.ini)
 # Here is a guide: https://www.techandme.se/increase-max-file-size/
-VALUE="# php_value upload_max_filesize 513M"
+VALUE="# php_value upload_max_filesize 1000M"
 if grep -Fxq "$VALUE" $OCPATH/.htaccess
 then
         echo "Value correct"
 else
-        sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 513M/g' $OCPATH/.htaccess
-        sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 513M/g' $OCPATH/.htaccess
-        sed -i 's/  php_value memory_limit 512M/# php_value memory_limit 512M/g' $OCPATH/.htaccess
+        sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 1000M/g' $OCPATH/.htaccess
+        sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 1000M/g' $OCPATH/.htaccess
+        sed -i 's/  php_value memory_limit 512M/# php_value memory_limit 1000M/g' $OCPATH/.htaccess
 fi
 
 # Set $THEME_NAME
