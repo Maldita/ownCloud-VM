@@ -37,7 +37,7 @@ aptitude full-upgrade -y
 clear # OJO - añadido
 
 # Enable maintenance mode
-echo "Manteinance mode ON" # OJO - añadido
+# echo "Manteinance mode ON" # OJO - añadido - Innecesario
 sudo -u www-data php $OCPATH/occ maintenance:mode --on
 
 # Stop Apache # OJO - Añadido todo el apartado
@@ -46,7 +46,7 @@ service apache2 stop
 
 # Backup data
 touch $SCRIPTS/DatosCopiados.log # OJO - añadido
-rsync -Aaxv $DATA $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado 
+rsync -Aax $DATA $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado - quitado parámetro "v" para reducir salida verbose
 rsync -Aax $OCPATH/config $HTML  >> $SCRIPTS/DatosCopiados.log # OJO - modificado
 rsync -Aax $OCPATH/themes $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
 rsync -Aax $OCPATH/apps $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
@@ -93,7 +93,7 @@ fi
 if [ -d $DATA/ ]; then
         echo "data/ exists" && sleep 2
         rm -rf $OCPATH
-        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE # OJO - modificado en ruta de destino y opciones tar
+        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE >> $SCRIPTS/NuevaVersion.log # OJO - modificado en ruta de destino y opciones tar
         rm $HTML/owncloud-$OCVERSION.tar.bz2
         touch $SCRIPTS/DatosRestaurados.log # OJO - añadido
         cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes >> $SCRIPTS/DatosRestaurados.log # OJO - modificado 
