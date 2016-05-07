@@ -34,8 +34,10 @@ fi
 # System Upgrade
 apt-get update
 aptitude full-upgrade -y
+clear # OJO - añadido
 
 # Enable maintenance mode
+echo "Manteinance mode ON" # OJO - añadido
 sudo -u www-data php $OCPATH/occ maintenance:mode --on
 
 # Stop Apache # OJO - Añadido todo el apartado
@@ -102,6 +104,7 @@ if [ -d $DATA/ ]; then
         # Start Apache # OJO - Añadido todo el apartado
         echo "Starting Apache server"
         service apache2 start
+        echo "Manteinance mode OFF" # OJO - añadido
         sudo -u www-data php $OCPATH/occ maintenance:mode --off
         sudo -u www-data php $OCPATH/occ upgrade
 else
