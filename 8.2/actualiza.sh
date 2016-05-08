@@ -46,10 +46,10 @@ service apache2 stop
 
 # Backup data
 touch $SCRIPTS/DatosCopiados.log # OJO - añadido
-rsync -Aax $DATA $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado - quitado parámetro "v" para reducir salida verbose
-rsync -Aax $OCPATH/config $HTML  >> $SCRIPTS/DatosCopiados.log # OJO - modificado
-rsync -Aax $OCPATH/themes $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
-rsync -Aax $OCPATH/apps $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
+rsync -Aaxv $DATA $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado - quitado parámetro "v" para reducir salida verbose
+rsync -Aaxv $OCPATH/config $HTML  >> $SCRIPTS/DatosCopiados.log # OJO - modificado
+rsync -Aaxv $OCPATH/themes $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
+rsync -Aaxv $OCPATH/apps $HTML >> $SCRIPTS/DatosCopiados.log # OJO - modificado
 if [[ $? > 0 ]]
 then
     echo "Backup was not OK. Please check $HTML and see if the folders are backed up properly"
@@ -96,10 +96,10 @@ if [ -d $DATA/ ]; then
         tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE >> $SCRIPTS/NuevaVersion.log # OJO - modificado en ruta de destino y opciones tar
         rm $HTML/owncloud-$OCVERSION.tar.bz2
         touch $SCRIPTS/DatosRestaurados.log # OJO - añadido
-        cp -R $HTML/themes $OCPATH/ && rm -rf $HTML/themes >> $SCRIPTS/DatosRestaurados.log # OJO - modificado 
-        cp -Rv $HTML/data $DATA && rm -rf $HTML/data >> $SCRIPTS/DatosRestaurados.log # OJO - modificado 
-        cp -R $HTML/config $OCPATH/ && rm -rf $HTML/config >> $SCRIPTS/DatosRestaurados.log # OJO - modificado  
-        # cp -R $HTML/apps $OCPATH/ && rm -rf $HTML/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
+        cp -R $HTML/themes $OCPATH/  >> $SCRIPTS/DatosRestaurados.log && rm -rf $HTML/themes # OJO - modificado 
+        cp -Rv $HTML/data $DATA  >> $SCRIPTS/DatosRestaurados.log && rm -rf $HTML/data # OJO - modificado 
+        cp -R $HTML/config $OCPATH/ >> $SCRIPTS/DatosRestaurados.log  && rm -rf $HTML/config # OJO - modificado  
+        # cp -R $HTML/apps $OCPATH/  >> $SCRIPTS/DatosRestaurados.log  && rm -rf $HTML/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
         bash $SECURE
         # Start Apache # OJO - Añadido todo el apartado
         echo "Starting Apache server"
