@@ -51,11 +51,11 @@
 	service apache2 stop
 
 # Backup data
-	touch $SCRIPTS/DatosCopiados.log # OJO - añadido
+	touch $FILES_BACKUP # OJO - añadido
 	rsync -Aaxv $DATA $BACKUP >> $FILES_BACKUP # OJO - modificado - añadido parámetro "v" para aumentar salida verbose a log
 	rsync -Aaxv $OCPATH/config $BACKUP  >> $FILES_BACKUP # OJO - modificado
 	rsync -Aaxv $OCPATH/themes $BACKUP >> $FILES_BACKUP # OJO - modificado
-	rsync -Aaxv $OCPATH/apps $BACKUP >> $FILES_BACKUP # OJO - modificado
+	#rsync -Aaxv $OCPATH/apps $BACKUP >> $FILES_BACKUP # OJO - modificado # OJO, innecesario si no hay apps 3rd party, modificadas o de GIT
 	if [[ $? > 0 ]]
 		then
 		    echo "Backup was not OK. Please check $BACKUP and see if the folders are backed up properly"
@@ -93,13 +93,13 @@
 		   	exit 1
 	fi
 
-	if [ -d $OCPATH/apps/ ]; 
-		then
-		        echo "apps/ exists" 
-		else
-		        echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if apps/ folder exist."
-		   	exit 1
-	fi
+	#if [ -d $OCPATH/apps/ ]; # OJO, innecesario si no hay apps 3rd party, modificadas o de GIT
+		#then
+		        #echo "apps/ exists" 
+		#else
+		        #echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if apps/ folder exist."
+		   	#exit 1
+	#fi
 
 	if [ -d $DATA/ ]; 
 		then
@@ -107,11 +107,11 @@
 		        rm -rf $OCPATH
 		        tar -xvf $BACKUP/owncloud-$OCVERSION.tar.bz2 -C $BASE >> $FILES_NEW # OJO - modificado en ruta de destino y opciones tar
 		        rm $BACKUP/owncloud-$OCVERSION.tar.bz2
-		        touch $SCRIPTS/DatosRestaurados.log # OJO - añadido
+		        touch $FILES_RESTORE # OJO - añadido
 		        cp -R $BACKUP/themes $OCPATH/  >> $FILES_RESTORE && rm -rf $BACKUP/themes # OJO - modificado 
 		        cp -Rv $BACKUP/data $DATA  >> $FILES_RESTORE && rm -rf $BACKUP/data # OJO - modificado 
 		        cp -R $BACKUP/config $OCPATH/ >> $FILES_RESTORE  && rm -rf $BACKUP/config # OJO - modificado  
-		        # cp -R $BACKUP/apps $OCPATH/  >> $FILES_RESTORE  && rm -rf $BACKUP/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
+		        # cp -R $BACKUP/apps $OCPATH/  >> $FILES_RESTORE  && rm -rf $BACKUP/apps # OJO - modificado, solo se puede hacer para 3party apps, modificadas o de git - Importante no tocar
 		        bash $SECURE
 		        # Start Apache # OJO - Añadido todo el apartado
 		        echo "Starting Apache server"
@@ -128,21 +128,26 @@
 	#sudo -u www-data php $OCPATH/occ app:enable calendar
 	#sudo -u www-data php $OCPATH/occ app:enable contacts
 	#sudo -u www-data php $OCPATH/occ app:enable documents
-	sudo -u www-data php $OCPATH/occ app:enable external
+	sudo -u www-data php $OCPATH/occ app:enable external #OJO - Comprobar que no tengamos que activar alguna más por defecto
 
 # Disable maintenance mode
 	# sudo -u www-data php $OCPATH/occ maintenance:mode --off #OJO - modificado por aparentemente redundante. Si falla el proceso queda con manteinance activado para evitar problemas si usuarios acceden
 
 # Increase max filesize (expects that changes are made in /etc/php5/apache2/php.ini)
 # Here is a guide: https://www.techandme.se/increase-max-file-size/
-	VALUE="# php_value upload_max_filesize 1000M"
+	VALUE="# php_value upload_max_filesize 2000M" # OJO - Se aplica solo si el valor está por defecto a 512M o 1000M...
 	if grep -Fxq "$VALUE" $OCPATH/.htaccess
 		then
 		        echo "Upload value correct"
 		else
-		        sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 1000M/g' $OCPATH/.htaccess
-		        sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 1000M/g' $OCPATH/.htaccess
-		        sed -i 's/  php_value memory_limit 512M/# php_value memory_limit 1000M/g' $OCPATH/.htaccess
+			# OJO - en .htacces están comentados con "#", buscar razones y ver php.ini...
+		        sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 2000M/g' $OCPATH/.htaccess
+		        sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 2000M/g' $OCPATH/.htaccess
+		        sed -i 's/  php_value memory_limit 512M/# php_value memory_limit 2000M/g' $OCPATH/.htaccess
+		      	
+		      	sed -i 's/  php_value upload_max_filesize 513M/# php_value upload_max_filesize 2000M/g' $OCPATH/.htaccess
+		        sed -i 's/  php_value post_max_size 513M/# php_value post_max_size 2000M/g' $OCPATH/.htaccess
+		        sed -i 's/  php_value memory_limit 512M/# php_value memory_limit 2000M/g' $OCPATH/.htaccess
 	fi
 
 # Set $THEME_NAME
