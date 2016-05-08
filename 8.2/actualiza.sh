@@ -5,24 +5,25 @@
 #Variables
 	SCRIPTS=/var/scripts
 	LOGS=/var/scripts/logs # OJO - añadido
-	HTML=/var/backup # OJO - modificado
+	BACKUP=/var/backup # OJO - modificado
 	OCPATH=/var/www/owncloud
 	DATA=/var/www/owncloud/data # OJO - modificado
 	BASE=/var/www # OJO - añadido
 	SECURE="$SCRIPTS/setup_secure_permissions_owncloud.sh"
 	OCVERSION=8.2.4
-	STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/master/static"
+	STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/despliegue/8.2" # OJO - modificado
 	THEME_NAME=""
+	NEW_VERSION="https://download.owncloud.org/community/owncloud-$OCVERSION.tar.bz2"
 	FILES_BACKUP=$LOGS/"01-DatosSalvados.log" # OJO - añadido
 	FILES_NEW=$LOGS/"02-DatosNuevaVersion.log" # OJO - añadido
 	FILES_RESTORE=$LOGS/"03-DatosRestaurados.log" # OJO - añadido
 	UPDATE_RESULT=$LOGS/"04-ResultadoActualizacion.log" # OJO - añadido
 
 # Provisional # OJO - añadido apartado
-	mkdir $HTML
+	mkdir $BACKUP
 	mkdir $LOGS
-	chown -R www-data:www-data /$HTML
-	chmod -R 777 $HTML
+	chown -R www-data:root /$BACKUP
+	chmod -R 770 $BACKUP
 
 # Must be root
 	[[ $(id -u) -eq 0 ]] || { echo "Must be root to run script, in Ubuntu type: sudo -i"; exit 1; }
@@ -51,13 +52,13 @@
 
 # Backup data
 	touch $SCRIPTS/DatosCopiados.log # OJO - añadido
-	rsync -Aaxv $DATA $HTML >> $FILES_BACKUP# OJO - modificado - quitado parámetro "v" para reducir salida verbose
-	rsync -Aaxv $OCPATH/config $HTML  >> $FILES_BACKUP # OJO - modificado
-	rsync -Aaxv $OCPATH/themes $HTML >> $FILES_BACKUP # OJO - modificado
-	rsync -Aaxv $OCPATH/apps $HTML >> $FILES_BACKUP # OJO - modificado
+	rsync -Aaxv $DATA $BACKUP >> $FILES_BACKUP # OJO - modificado - añadido parámetro "v" para aumentar salida verbose a log
+	rsync -Aaxv $OCPATH/config $BACKUP  >> $FILES_BACKUP # OJO - modificado
+	rsync -Aaxv $OCPATH/themes $BACKUP >> $FILES_BACKUP # OJO - modificado
+	rsync -Aaxv $OCPATH/apps $BACKUP >> $FILES_BACKUP # OJO - modificado
 	if [[ $? > 0 ]]
 		then
-		    echo "Backup was not OK. Please check $HTML and see if the folders are backed up properly"
+		    echo "Backup was not OK. Please check $BACKUP and see if the folders are backed up properly"
 		    exit
 		else
 				echo -e "\e[32m"
@@ -66,11 +67,11 @@
 	fi
 	
 	# Download new version
-		wget https://download.owncloud.org/community/owncloud-$OCVERSION.tar.bz2 -P $HTML
+		wget $NEW_VERSION -P $BACKUP
 		
-		if [ -f $HTML/owncloud-$OCVERSION.tar.bz2 ];
+		if [ -f $BACKUP/owncloud-$OCVERSION.tar.bz2 ];
 			then
-			        echo "$HTML/owncloud-latest.tar.bz2 exists"
+			        echo "$BACKUP/owncloud-latest.tar.bz2 exists"
 			else
 			        echo "Aborting,something went wrong with the download"
 				exit 1
@@ -80,7 +81,7 @@
 		then
 		        echo "config/ exists" 
 		else
-		        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if config/ folder exist."
+		        echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if config/ folder exist."
 		   	exit 1
 	fi
 
@@ -88,7 +89,7 @@
 		then
 		        echo "themes/ exists" 
 		else
-		        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if themes/ folder exist."
+		        echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if themes/ folder exist."
 		   	exit 1
 	fi
 
@@ -96,7 +97,7 @@
 		then
 		        echo "apps/ exists" 
 		else
-		        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if apps/ folder exist."
+		        echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if apps/ folder exist."
 		   	exit 1
 	fi
 
@@ -104,13 +105,13 @@
 		then
 		        echo "data/ exists" && sleep 2
 		        rm -rf $OCPATH
-		        tar -xvf $HTML/owncloud-$OCVERSION.tar.bz2 -C $BASE >> FILES_NEW # OJO - modificado en ruta de destino y opciones tar
-		        rm $HTML/owncloud-$OCVERSION.tar.bz2
+		        tar -xvf $BACKUP/owncloud-$OCVERSION.tar.bz2 -C $BASE >> $FILES_NEW # OJO - modificado en ruta de destino y opciones tar
+		        rm $BACKUP/owncloud-$OCVERSION.tar.bz2
 		        touch $SCRIPTS/DatosRestaurados.log # OJO - añadido
-		        cp -R $HTML/themes $OCPATH/  >> $FILES_RESTORE && rm -rf $HTML/themes # OJO - modificado 
-		        cp -Rv $HTML/data $DATA  >> $FILES_RESTORE && rm -rf $HTML/data # OJO - modificado 
-		        cp -R $HTML/config $OCPATH/ >> $FILES_RESTORE  && rm -rf $HTML/config # OJO - modificado  
-		        # cp -R $HTML/apps $OCPATH/  >> $FILES_RESTORE  && rm -rf $HTML/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
+		        cp -R $BACKUP/themes $OCPATH/  >> $FILES_RESTORE && rm -rf $BACKUP/themes # OJO - modificado 
+		        cp -Rv $BACKUP/data $DATA  >> $FILES_RESTORE && rm -rf $BACKUP/data # OJO - modificado 
+		        cp -R $BACKUP/config $OCPATH/ >> $FILES_RESTORE  && rm -rf $BACKUP/config # OJO - modificado  
+		        # cp -R $BACKUP/apps $OCPATH/  >> $FILES_RESTORE  && rm -rf $BACKUP/apps # OJO - modificado, solo se puede hacer para 3party apps - Importante no tocar
 		        bash $SECURE
 		        # Start Apache # OJO - Añadido todo el apartado
 		        echo "Starting Apache server"
@@ -119,7 +120,7 @@
 		        sudo -u www-data php $OCPATH/occ maintenance:mode --off
 		        sudo -u www-data php $OCPATH/occ upgrade
 		else
-		        echo "Something went wrong with backing up your old ownCloud instance, please check in $HTML if data/ folder exist."
+		        echo "Something went wrong with backing up your old ownCloud instance, please check in $BACKUP if data/ folder exist."
 		   	exit 1
 	fi
 
