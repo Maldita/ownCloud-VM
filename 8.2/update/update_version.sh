@@ -11,7 +11,7 @@
 	BASE=/var/www # OJO - añadido
 	SECURE="$SCRIPTS/setup_secure_permissions_owncloud.sh"
 	OCVERSION=8.2.4
-	STATIC="https://raw.githubusercontent.com/Maldita/ownCloud-VM/despliegue/8.2" # OJO - modificado
+	SHARED="https://raw.githubusercontent.com/Maldita/ownCloud-VM/despliegue/8.2/shared" # OJO - modificado
 	THEME_NAME=""
 	NEW_VERSION="https://download.owncloud.org/community/owncloud-$OCVERSION.tar.bz2"
 	FILES_BACKUP=$LOGS/"01-DatosSalvados.log" # OJO - añadido
@@ -34,7 +34,7 @@
 		        echo "Script exists"
 		else
 		        mkdir -p $SCRIPTS
-		        wget $STATIC/setup_secure_permissions_owncloud.sh -P $SCRIPTS
+		        wget $SHARED/setup_secure_permissions_owncloud.sh -P $SCRIPTS
 	fi
 
 # System Upgrade
