@@ -32,9 +32,9 @@ else
 fi
 
 # System Upgrade
-apt-get update
-aptitude full-upgrade -y
-clear # OJO - añadido
+#apt-get update
+#aptitude full-upgrade -y
+#clear # OJO - añadido
 
 # Enable maintenance mode
 # echo "Manteinance mode ON" # OJO - añadido - Innecesario
